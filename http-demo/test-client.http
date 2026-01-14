@@ -1,0 +1,128 @@
+
+@baseUrl = http://localhost:3000
+
+
+###
+GET / HTTP1.1
+Host: {{baseUrl}}
+User-Agent: HTTPie/2.4.0
+Accept: text/plain
+
+
+### Request (text/plain)
+GET {{baseUrl}}/
+Accept: text/plain
+
+
+### Request (text/html)
+GET {{baseUrl}}/
+Accept: text/html
+
+
+### Request (application/json)
+GET {{baseUrl}}/
+Accept: application/json
+
+### Request (application/xml)
+GET {{baseUrl}}/
+Accept: application/xml
+
+###
+GET {{baseUrl}}/
+Accept: acme/custom-type
+
+### HTML page that references an image
+GET {{baseUrl}}/page
+Accept: text/html
+
+
+### Fetch the referenced image directly
+GET {{baseUrl}}/images/demo.svg
+Accept: image/svg+xml
+
+
+### Echo: shows what the server received (query + headers + JSON body)
+POST {{baseUrl}}/echo?debug=true
+Content-Type: application/json
+Accept: application/json
+X-Custom-Header: hello
+
+{
+	"demo": 123,
+	"note": "look at headers/query/body"
+}
+
+
+### List items
+GET {{baseUrl}}/items
+Accept: application/json
+
+
+### Get one item (existing id)
+GET {{baseUrl}}/items/1
+Accept: application/json
+
+
+### Create item (POST)
+# @name createItem
+POST {{baseUrl}}/items
+Content-Type: application/json
+Accept: application/json
+
+{
+	"name": "Marker",
+	"price": 2.75
+}
+
+
+### Capture created item id for later requests
+@createdId = {{createItem.response.body.$.id}}
+
+
+### Get created item (uses id captured from createItem response)
+GET {{baseUrl}}/items/{{createdId}}
+Accept: application/json
+
+
+### Replace item (PUT) — full update
+PUT {{baseUrl}}/items/{{createdId}}
+Content-Type: application/json
+Accept: application/json
+
+{
+	"name": "Marker (wide)",
+	"price": 3.25
+}
+
+
+### Partial update (PATCH) — update one field
+PATCH {{baseUrl}}/items/{{createdId}}
+Content-Type: application/json
+Accept: application/json
+
+{
+	"price": 3.5
+}
+
+
+### HEAD (same as GET but no body) — check headers
+HEAD {{baseUrl}}/items/{{createdId}}
+
+
+### OPTIONS — allowed methods for /items (see Allow header)
+OPTIONS {{baseUrl}}/items
+
+
+### Delete item (DELETE) — returns 204 No Content
+DELETE {{baseUrl}}/items/{{createdId}}
+
+
+### Confirm delete (should be 404)
+GET {{baseUrl}}/items/{{createdId}}
+Accept: application/json
+
+
+### Not found route (default 404 handler)
+GET {{baseUrl}}/does-not-exist
+Accept: application/json
+
