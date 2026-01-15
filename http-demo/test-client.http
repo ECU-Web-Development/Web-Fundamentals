@@ -3,11 +3,10 @@
 
 
 ###
-GET / HTTP1.1
-Host: {{baseUrl}}
+GET / HTTP/1.1
+Host: localhost:3000
 User-Agent: HTTPie/2.4.0
 Accept: text/plain
-
 
 ### Request (text/plain)
 GET {{baseUrl}}/
