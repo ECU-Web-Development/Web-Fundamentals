@@ -1,0 +1,22 @@
+{
+  "name": "test-demo",
+  "version": "1.0.0",
+  "description": "demonstrates the use of npm init",
+  "keywords": [
+    "poc",
+    "example",
+    "testing",
+    "learning"
+  ],
+  "license": "ISC",
+  "author": "Brian Dietrick",
+  "type": "module",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "node --watch app.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}

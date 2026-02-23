@@ -49,7 +49,7 @@ function requestSummary(req) {
   };
 }
 
-// Root: quick help
+
 app.get('/', (req, res) => {
 
   if (req.accepts('text/plain')) {

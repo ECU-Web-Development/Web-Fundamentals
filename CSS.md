@@ -185,6 +185,9 @@ Every element is a box:
 - **Border**: outline
 - **Margin**: space outside the border
 
+![alt text](images/box-model.png)
+
+
 ```css
 .box {
 	margin: 20px;
