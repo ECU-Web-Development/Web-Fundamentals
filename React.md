@@ -26,11 +26,12 @@ A step-by-step guide to building React applications using **Bun** and **Vite**.
 18. [Conditional Rendering](#18-conditional-rendering)
 19. [useState](#19-usestate)
 20. [useEffect](#20-useeffect)
-21. [Context API](#21-context-api)
-22. [Styling Approaches](#22-styling-approaches)
-23. [Routing](#23-routing)
-24. [useCallback & useMemo](#24-usecallback--usememo)
-25. [Zustand](#25-zustand)
+21. [useRef](#21-useref)
+22. [Context API](#22-context-api)
+23. [Styling Approaches](#23-styling-approaches)
+24. [Routing](#24-routing)
+25. [useCallback & useMemo](#25-usecallback--usememo)
+26. [Zustand](#26-zustand)
 
 ---
 
@@ -79,16 +80,16 @@ my-app/
 
 ### Key files explained
 
-| File | Purpose |
-|------|---------|
-| `index.html` | The single HTML page. Vite injects the JS bundle here. |
-| `src/main.jsx` | JavaScript entry point. Mounts the React app into the DOM. |
-| `src/App.jsx` | The top-level React component, rendered by `main.jsx`. |
-| `src/index.css` | Global CSS — resets, fonts, body styles. |
-| `src/App.css` | Styles specific to the `App` component. |
-| `public/` | Files here are copied unchanged to the build output. Reference them with an absolute path like `/vite.svg`. |
-| `vite.config.js` | Configure the Vite dev server, plugins, and build options. |
-| `package.json` | Lists dependencies (`react`, `react-dom`) and scripts (`dev`, `build`, `preview`). |
+| File             | Purpose                                                                                                     |
+| ---------------- | ----------------------------------------------------------------------------------------------------------- |
+| `index.html`     | The single HTML page. Vite injects the JS bundle here.                                                      |
+| `src/main.jsx`   | JavaScript entry point. Mounts the React app into the DOM.                                                  |
+| `src/App.jsx`    | The top-level React component, rendered by `main.jsx`.                                                      |
+| `src/index.css`  | Global CSS — resets, fonts, body styles.                                                                    |
+| `src/App.css`    | Styles specific to the `App` component.                                                                     |
+| `public/`        | Files here are copied unchanged to the build output. Reference them with an absolute path like `/vite.svg`. |
+| `vite.config.js` | Configure the Vite dev server, plugins, and build options.                                                  |
+| `package.json`   | Lists dependencies (`react`, `react-dom`) and scripts (`dev`, `build`, `preview`).                          |
 
 ---
 
@@ -120,13 +121,13 @@ React needs a single HTML element to "mount" into. Vite's `index.html` provides 
 
 ```jsx
 // src/main.jsx
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import './index.css';       // Global styles loaded once here
-import App from './App.jsx'; // The root component
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import "./index.css"; // Global styles loaded once here
+import App from "./App.jsx"; // The root component
 
 // 1. Find the DOM node to mount into
-const rootElement = document.getElementById('root');
+const rootElement = document.getElementById("root");
 
 // 2. Create a React root (React 18+ API)
 const root = createRoot(rootElement);
@@ -135,7 +136,7 @@ const root = createRoot(rootElement);
 root.render(
   <StrictMode>
     <App />
-  </StrictMode>
+  </StrictMode>,
 );
 ```
 
@@ -158,7 +159,7 @@ Browser loads index.html
 
 ```jsx
 // src/App.jsx
-import './App.css';
+import "./App.css";
 
 function App() {
   return (
@@ -188,6 +189,7 @@ function Greeting() {
 ```
 
 Rules for components:
+
 - The function name **must start with a capital letter** (`Greeting`, not `greeting`). This is how React distinguishes components from plain HTML tags.
 - The function must **return JSX** (or `null` to render nothing).
 - Components can be used like HTML tags: `<Greeting />`.
@@ -201,8 +203,8 @@ function Greeting() {
 function App() {
   return (
     <div>
-      <Greeting />   {/* Using the component */}
-      <Greeting />   {/* Reusable — render as many times as needed */}
+      <Greeting /> {/* Using the component */}
+      <Greeting /> {/* Reusable — render as many times as needed */}
     </div>
   );
 }
@@ -262,7 +264,7 @@ function Good() {
 
 ```jsx
 function Profile() {
-  const name = 'Alice';
+  const name = "Alice";
   const age = 30;
 
   return (
@@ -279,14 +281,14 @@ function Profile() {
 **5. Inline styles use objects with camelCase properties**
 
 ```jsx
-const style = { backgroundColor: 'steelblue', fontSize: '1.2rem' };
+const style = { backgroundColor: "steelblue", fontSize: "1.2rem" };
 
 function StyledBox() {
   return <div style={style}>Styled!</div>;
 }
 
 // Or inline:
-<div style={{ color: 'red', marginTop: '8px' }}>Red text</div>
+<div style={{ color: "red", marginTop: "8px" }}>Red text</div>;
 ```
 
 **6. Comments in JSX**
@@ -323,9 +325,9 @@ export default Button; // ← default export
 
 ```jsx
 // Importing — name can be anything
-import Button from './Button';
-import Btn from './Button';     // also valid
-import MyButton from './Button'; // also valid
+import Button from "./Button";
+import Btn from "./Button"; // also valid
+import MyButton from "./Button"; // also valid
 ```
 
 ### Named Export
@@ -334,39 +336,46 @@ A file can have **many** named exports. They must be imported using the exact ex
 
 ```jsx
 // src/utils.jsx
-export function add(a, b) { return a + b; }
-export function subtract(a, b) { return a - b; }
+export function add(a, b) {
+  return a + b;
+}
+export function subtract(a, b) {
+  return a - b;
+}
 export const PI = 3.14159;
 ```
 
 ```jsx
 // Importing named exports — use exact names in braces
-import { add, subtract, PI } from './utils';
+import { add, subtract, PI } from "./utils";
 
 // Rename on import
-import { add as sum } from './utils';
+import { add as sum } from "./utils";
 ```
 
 ### When to use which?
 
-| Scenario | Use |
-|----------|-----|
+| Scenario                              | Use            |
+| ------------------------------------- | -------------- |
 | One main thing per file (a component) | Default export |
-| Multiple utilities from one file | Named exports |
-| React hooks, constants, helpers | Named exports |
+| Multiple utilities from one file      | Named exports  |
+| React hooks, constants, helpers       | Named exports  |
 
 ```jsx
 // A file can have both
 // src/Card.jsx
-export function CardHeader({ title }) {        // named
+export function CardHeader({ title }) {
+  // named
   return <h2>{title}</h2>;
 }
 
-export function CardBody({ children }) {       // named
+export function CardBody({ children }) {
+  // named
   return <div className="card-body">{children}</div>;
 }
 
-export default function Card({ title, children }) { // default
+export default function Card({ title, children }) {
+  // default
   return (
     <div className="card">
       <CardHeader title={title} />
@@ -377,7 +386,7 @@ export default function Card({ title, children }) { // default
 ```
 
 ```jsx
-import Card, { CardHeader, CardBody } from './Card';
+import Card, { CardHeader, CardBody } from "./Card";
 ```
 
 ---
@@ -393,33 +402,39 @@ React projects use **ES Modules** (ESM) — the standard JavaScript module syste
 
 // Named exports
 export const PI = 3.14159;
-export function circle(r) { return PI * r * r; }
+export function circle(r) {
+  return PI * r * r;
+}
 
 // You can also export at the bottom:
-function square(n) { return n * n; }
+function square(n) {
+  return n * n;
+}
 export { square };
 
 // Default export
-export default function main() { console.log('main'); }
+export default function main() {
+  console.log("main");
+}
 ```
 
 ### Importing
 
 ```js
 // Named imports
-import { PI, circle } from './math';
+import { PI, circle } from "./math";
 
 // Default import
-import main from './math';
+import main from "./math";
 
 // Both at once
-import main, { PI, circle } from './math';
+import main, { PI, circle } from "./math";
 
 // Rename
-import { circle as circleArea } from './math';
+import { circle as circleArea } from "./math";
 
 // Import everything as a namespace object
-import * as MathUtils from './math';
+import * as MathUtils from "./math";
 MathUtils.circle(5);
 ```
 
@@ -429,18 +444,18 @@ A common pattern is creating an `index.js` that re-exports from several files, m
 
 ```js
 // src/components/index.js
-export { default as Button } from './Button';
-export { default as Card } from './Card';
-export { default as Modal } from './Modal';
+export { default as Button } from "./Button";
+export { default as Card } from "./Card";
+export { default as Modal } from "./Modal";
 ```
 
 ```jsx
 // Instead of:
-import Button from './components/Button';
-import Card from './components/Card';
+import Button from "./components/Button";
+import Card from "./components/Card";
 
 // You can write:
-import { Button, Card } from './components';
+import { Button, Card } from "./components";
 ```
 
 ---
@@ -480,7 +495,7 @@ function App() {
     <div>
       {/* UserCard contains Avatar and UserInfo */}
       <UserCard name="Alice" role="Engineer" avatarSrc="/alice.jpg" />
-      <UserCard name="Bob"   role="Designer" avatarSrc="/bob.jpg" />
+      <UserCard name="Bob" role="Designer" avatarSrc="/bob.jpg" />
     </div>
   );
 }
@@ -497,7 +512,7 @@ App
     └── UserInfo
 ```
 
-> **Define components at the module level** — never define a component function *inside* another component function. Doing so recreates it on every render, destroying and remounting its subtree.
+> **Define components at the module level** — never define a component function _inside_ another component function. Doing so recreates it on every render, destroying and remounting its subtree.
 
 ---
 
@@ -551,22 +566,22 @@ components/Button/
 
 ```jsx
 // Clean import from anywhere in the project
-import Button from '@/components/Button';
+import Button from "@/components/Button";
 ```
 
 Configure the `@` alias in `vite.config.js`:
 
 ```js
 // vite.config.js
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import path from 'path';
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import path from "path";
 
 export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      "@": path.resolve(__dirname, "./src"),
     },
   },
 });
@@ -581,11 +596,11 @@ export default defineConfig({
 ### Object Destructuring
 
 ```js
-const user = { name: 'Alice', age: 30, role: 'admin' };
+const user = { name: "Alice", age: 30, role: "admin" };
 
 // Without destructuring
 const name = user.name;
-const age  = user.age;
+const age = user.age;
 
 // With destructuring
 const { name, age, role } = user;
@@ -596,21 +611,23 @@ const { name: userName, age: userAge } = user;
 console.log(userName); // 'Alice'
 
 // Default values
-const { name, theme = 'light' } = user;
+const { name, theme = "light" } = user;
 console.log(theme); // 'light' (user.theme is undefined)
 
 // Nested destructuring
-const { address: { city } } = { address: { city: 'NY' } };
+const {
+  address: { city },
+} = { address: { city: "NY" } };
 console.log(city); // 'NY'
 ```
 
 ### Array Destructuring
 
 ```js
-const colors = ['red', 'green', 'blue'];
+const colors = ["red", "green", "blue"];
 
 const [first, second] = colors;
-console.log(first);  // 'red'
+console.log(first); // 'red'
 console.log(second); // 'green'
 
 // Skip elements
@@ -645,10 +662,12 @@ function UserCard({ name, role }) {
 }
 
 // With default values
-function UserCard({ name, role = 'Member', isAdmin = false }) {
+function UserCard({ name, role = "Member", isAdmin = false }) {
   return (
     <div>
-      <h2>{name} {isAdmin && '(Admin)'}</h2>
+      <h2>
+        {name} {isAdmin && "(Admin)"}
+      </h2>
       <p>{role}</p>
     </div>
   );
@@ -665,8 +684,8 @@ Both use `...` syntax but serve opposite purposes.
 
 ```js
 // Merge objects (last write wins)
-const defaults = { theme: 'light', lang: 'en', fontSize: 14 };
-const overrides = { lang: 'fr', fontSize: 16 };
+const defaults = { theme: "light", lang: "en", fontSize: 14 };
+const overrides = { lang: "fr", fontSize: 16 };
 const config = { ...defaults, ...overrides };
 // { theme: 'light', lang: 'fr', fontSize: 16 }
 
@@ -675,8 +694,8 @@ const original = [1, 2, 3];
 const extended = [...original, 4, 5]; // [1, 2, 3, 4, 5]
 
 // Pass all object properties as props
-const buttonProps = { type: 'submit', disabled: false, className: 'btn' };
-<button {...buttonProps}>Submit</button>
+const buttonProps = { type: "submit", disabled: false, className: "btn" };
+<button {...buttonProps}>Submit</button>;
 // Same as: <button type="submit" disabled={false} className="btn">Submit</button>
 ```
 
@@ -685,13 +704,18 @@ const buttonProps = { type: 'submit', disabled: false, className: 'btn' };
 ```js
 // Collect remaining array items
 const [first, second, ...rest] = [1, 2, 3, 4, 5];
-console.log(first);  // 1
+console.log(first); // 1
 console.log(second); // 2
-console.log(rest);   // [3, 4, 5]
+console.log(rest); // [3, 4, 5]
 
 // Collect remaining object keys
-const { id, name, ...otherProps } = { id: 1, name: 'Alice', role: 'admin', age: 30 };
-console.log(id);         // 1
+const { id, name, ...otherProps } = {
+  id: 1,
+  name: "Alice",
+  role: "admin",
+  age: 30,
+};
+console.log(id); // 1
 console.log(otherProps); // { role: 'admin', age: 30 }
 
 // Rest in function parameters
@@ -705,7 +729,7 @@ sum(1, 2, 3, 4); // 10
 
 ```jsx
 // Forward extra props to the underlying element (common in component libraries)
-function Button({ label, variant = 'primary', ...rest }) {
+function Button({ label, variant = "primary", ...rest }) {
   return (
     <button className={`btn btn-${variant}`} {...rest}>
       {label}
@@ -714,15 +738,20 @@ function Button({ label, variant = 'primary', ...rest }) {
 }
 
 // Usage — onClick, disabled, etc. are forwarded via ...rest
-<Button label="Save" variant="success" onClick={handleSave} disabled={isSaving} />
+<Button
+  label="Save"
+  variant="success"
+  onClick={handleSave}
+  disabled={isSaving}
+/>;
 ```
 
 ```jsx
 // Immutable state updates using spread
-const [user, setUser] = useState({ name: 'Alice', age: 30, role: 'admin' });
+const [user, setUser] = useState({ name: "Alice", age: 30, role: "admin" });
 
 // Update one field without mutating
-setUser(prev => ({ ...prev, age: 31 }));
+setUser((prev) => ({ ...prev, age: 31 }));
 ```
 
 ---
@@ -737,13 +766,13 @@ Returns a new array of the same length.
 
 ```js
 const numbers = [1, 2, 3, 4, 5];
-const doubled = numbers.map(n => n * 2); // [2, 4, 6, 8, 10]
+const doubled = numbers.map((n) => n * 2); // [2, 4, 6, 8, 10]
 
 const users = [
-  { id: 1, name: 'Alice' },
-  { id: 2, name: 'Bob' },
+  { id: 1, name: "Alice" },
+  { id: 2, name: "Bob" },
 ];
-const names = users.map(u => u.name); // ['Alice', 'Bob']
+const names = users.map((u) => u.name); // ['Alice', 'Bob']
 ```
 
 ### `filter` — keep items that pass a test
@@ -752,14 +781,14 @@ Returns a new array that may be shorter.
 
 ```js
 const numbers = [1, 2, 3, 4, 5, 6];
-const evens = numbers.filter(n => n % 2 === 0); // [2, 4, 6]
+const evens = numbers.filter((n) => n % 2 === 0); // [2, 4, 6]
 
 const users = [
-  { name: 'Alice', active: true },
-  { name: 'Bob',   active: false },
-  { name: 'Carol', active: true },
+  { name: "Alice", active: true },
+  { name: "Bob", active: false },
+  { name: "Carol", active: true },
 ];
-const activeUsers = users.filter(u => u.active);
+const activeUsers = users.filter((u) => u.active);
 // [{ name: 'Alice', active: true }, { name: 'Carol', active: true }]
 ```
 
@@ -771,8 +800,8 @@ const sum = numbers.reduce((accumulator, current) => accumulator + current, 0); 
 
 // Build an object from an array
 const users = [
-  { id: 1, name: 'Alice' },
-  { id: 2, name: 'Bob' },
+  { id: 1, name: "Alice" },
+  { id: 2, name: "Bob" },
 ];
 const userMap = users.reduce((acc, user) => {
   acc[user.id] = user;
@@ -785,16 +814,16 @@ const userMap = users.reduce((acc, user) => {
 
 ```jsx
 const products = [
-  { id: 1, name: 'Apple',  price: 1.50, inStock: true  },
-  { id: 2, name: 'Banana', price: 0.75, inStock: false },
-  { id: 3, name: 'Cherry', price: 3.00, inStock: true  },
+  { id: 1, name: "Apple", price: 1.5, inStock: true },
+  { id: 2, name: "Banana", price: 0.75, inStock: false },
+  { id: 3, name: "Cherry", price: 3.0, inStock: true },
 ];
 
 function ProductSummary({ products }) {
   // Chain: filter in-stock → map to prices → reduce to total
   const total = products
-    .filter(p => p.inStock)
-    .map(p => p.price)
+    .filter((p) => p.inStock)
+    .map((p) => p.price)
     .reduce((sum, price) => sum + price, 0);
 
   return (
@@ -802,9 +831,11 @@ function ProductSummary({ products }) {
       <h3>In-Stock Products</h3>
       <ul>
         {products
-          .filter(p => p.inStock)
-          .map(p => (
-            <li key={p.id}>{p.name} — ${p.price.toFixed(2)}</li>
+          .filter((p) => p.inStock)
+          .map((p) => (
+            <li key={p.id}>
+              {p.name} — ${p.price.toFixed(2)}
+            </li>
           ))}
       </ul>
       <p>Total: ${total.toFixed(2)}</p>
@@ -822,7 +853,11 @@ function ProductSummary({ products }) {
 ```jsx
 // Define a component that accepts props
 function Greeting({ name, age }) {
-  return <p>Hello, {name}! You are {age} years old.</p>;
+  return (
+    <p>
+      Hello, {name}! You are {age} years old.
+    </p>
+  );
 }
 
 // Pass props like HTML attributes
@@ -830,7 +865,7 @@ function App() {
   return (
     <div>
       <Greeting name="Alice" age={30} />
-      <Greeting name="Bob"   age={25} />
+      <Greeting name="Bob" age={25} />
     </div>
   );
 }
@@ -850,7 +885,7 @@ function BadComponent({ count }) {
 // ✅ Use local state instead
 function GoodComponent({ initialCount }) {
   const [count, setCount] = useState(initialCount);
-  return <button onClick={() => setCount(c => c + 1)}>{count}</button>;
+  return <button onClick={() => setCount((c) => c + 1)}>{count}</button>;
 }
 ```
 
@@ -864,7 +899,7 @@ function Card({ title, children }) {
     <div className="card">
       <h2 className="card-title">{title}</h2>
       <div className="card-body">
-        {children}  {/* Renders whatever is nested inside <Card> */}
+        {children} {/* Renders whatever is nested inside <Card> */}
       </div>
     </div>
   );
@@ -889,7 +924,7 @@ function DeleteButton({ onDelete }) {
 
 function App() {
   function handleDelete() {
-    console.log('Deleted!');
+    console.log("Deleted!");
   }
 
   return <DeleteButton onDelete={handleDelete} />;
@@ -943,7 +978,7 @@ function App() {
 
   // handleClick closes over `message` and `setCount`
   function handleClick() {
-    setCount(c => c + 1);
+    setCount((c) => c + 1);
     console.log(message); // always logs the current message
   }
 
@@ -955,7 +990,7 @@ function App() {
 
 ```jsx
 function ButtonList() {
-  const labels = ['A', 'B', 'C'];
+  const labels = ["A", "B", "C"];
 
   return (
     <div>
@@ -990,7 +1025,7 @@ function Timer() {
   // ✅ Fix: use the functional updater form, which receives the latest state
   useEffect(() => {
     const id = setInterval(() => {
-      setCount(prev => prev + 1); // No closure over `count` needed
+      setCount((prev) => prev + 1); // No closure over `count` needed
     }, 1000);
     return () => clearInterval(id);
   }, []);
@@ -1007,19 +1042,19 @@ Good component architecture makes UIs **predictable, testable, and reusable**. T
 
 ### Presentational vs Container components
 
-| Presentational | Container |
-|----------------|-----------|
-| Renders UI | Manages state / fetches data |
+| Presentational                | Container                                     |
+| ----------------------------- | --------------------------------------------- |
+| Renders UI                    | Manages state / fetches data                  |
 | Receives everything via props | Passes data down to presentational components |
-| No side effects | Has side effects (fetching, subscriptions) |
-| Easy to test and reuse | Logic-heavy |
+| No side effects               | Has side effects (fetching, subscriptions)    |
+| Easy to test and reuse        | Logic-heavy                                   |
 
 ```jsx
 // Presentational — only cares about rendering
 function UserList({ users, onSelectUser }) {
   return (
     <ul>
-      {users.map(user => (
+      {users.map((user) => (
         <li key={user.id} onClick={() => onSelectUser(user)}>
           {user.name}
         </li>
@@ -1034,8 +1069,8 @@ function UserListContainer() {
   const [selected, setSelected] = useState(null);
 
   useEffect(() => {
-    fetch('/api/users')
-      .then(r => r.json())
+    fetch("/api/users")
+      .then((r) => r.json())
       .then(setUsers);
   }, []);
 
@@ -1086,10 +1121,10 @@ function useLocalStorage(key, initialValue) {
 
 // Use in any component
 function ThemeToggle() {
-  const [theme, setTheme] = useLocalStorage('theme', 'light');
+  const [theme, setTheme] = useLocalStorage("theme", "light");
 
   return (
-    <button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
+    <button onClick={() => setTheme(theme === "light" ? "dark" : "light")}>
       Current theme: {theme}
     </button>
   );
@@ -1107,7 +1142,7 @@ To render a list in React, use `.map()` to transform an array into JSX elements.
 Every element in a list **must** have a unique `key` prop. React uses it to efficiently update the DOM when the list changes.
 
 ```jsx
-const fruits = ['Apple', 'Banana', 'Cherry'];
+const fruits = ["Apple", "Banana", "Cherry"];
 
 function FruitList() {
   return (
@@ -1126,20 +1161,25 @@ Use a stable, unique identifier — typically an `id` from your data.
 
 ```jsx
 const users = [
-  { id: 1, name: 'Alice', email: 'alice@example.com' },
-  { id: 2, name: 'Bob',   email: 'bob@example.com'   },
-  { id: 3, name: 'Carol', email: 'carol@example.com' },
+  { id: 1, name: "Alice", email: "alice@example.com" },
+  { id: 2, name: "Bob", email: "bob@example.com" },
+  { id: 3, name: "Carol", email: "carol@example.com" },
 ];
 
 function UserTable({ users }) {
   return (
     <table>
       <thead>
-        <tr><th>Name</th><th>Email</th></tr>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+        </tr>
       </thead>
       <tbody>
         {users.map((user) => (
-          <tr key={user.id}>            {/* ✅ stable, unique id */}
+          <tr key={user.id}>
+            {" "}
+            {/* ✅ stable, unique id */}
             <td>{user.name}</td>
             <td>{user.email}</td>
           </tr>
@@ -1156,8 +1196,8 @@ function UserTable({ users }) {
 
 ```jsx
 const categories = [
-  { id: 1, name: 'Fruits',     items: ['Apple', 'Banana'] },
-  { id: 2, name: 'Vegetables', items: ['Carrot', 'Broccoli'] },
+  { id: 1, name: "Fruits", items: ["Apple", "Banana"] },
+  { id: 2, name: "Vegetables", items: ["Carrot", "Broccoli"] },
 ];
 
 function CategoryList({ categories }) {
@@ -1192,7 +1232,7 @@ Best for complex conditions or early returns.
 function Alert({ type, message }) {
   if (!message) return null; // Render nothing
 
-  if (type === 'error') {
+  if (type === "error") {
     return <div className="alert alert-error">❌ {message}</div>;
   }
 
@@ -1206,21 +1246,18 @@ Best for inline toggling between two elements.
 
 ```jsx
 function AuthButton({ isLoggedIn }) {
-  return (
-    <button>
-      {isLoggedIn ? 'Log Out' : 'Log In'}
-    </button>
-  );
+  return <button>{isLoggedIn ? "Log Out" : "Log In"}</button>;
 }
 
 // Ternary with JSX
 function Dashboard({ isLoggedIn, user }) {
   return (
     <div>
-      {isLoggedIn
-        ? <p>Welcome back, {user.name}!</p>
-        : <p>Please log in to continue.</p>
-      }
+      {isLoggedIn ? (
+        <p>Welcome back, {user.name}!</p>
+      ) : (
+        <p>Please log in to continue.</p>
+      )}
     </div>
   );
 }
@@ -1248,12 +1285,15 @@ function Notification({ hasNewMessages, count }) {
 ```jsx
 function StatusBadge({ status }) {
   const config = {
-    active:  { label: 'Active',  className: 'badge-green'  },
-    pending: { label: 'Pending', className: 'badge-yellow' },
-    banned:  { label: 'Banned',  className: 'badge-red'    },
+    active: { label: "Active", className: "badge-green" },
+    pending: { label: "Pending", className: "badge-yellow" },
+    banned: { label: "Banned", className: "badge-red" },
   };
 
-  const { label, className } = config[status] ?? { label: 'Unknown', className: 'badge-gray' };
+  const { label, className } = config[status] ?? {
+    label: "Unknown",
+    className: "badge-gray",
+  };
 
   return <span className={`badge ${className}`}>{label}</span>;
 }
@@ -1266,7 +1306,7 @@ function StatusBadge({ status }) {
 `useState` is the fundamental hook for adding **local state** to a component. When state changes, React re-renders the component.
 
 ```jsx
-import { useState } from 'react';
+import { useState } from "react";
 
 function Counter() {
   // Declare state variable `count` initialized to 0
@@ -1293,7 +1333,7 @@ When the new state depends on the previous state, use the **functional form** to
 setCount(count + 1);
 
 // ✅ Always uses the latest state
-setCount(prev => prev + 1);
+setCount((prev) => prev + 1);
 ```
 
 ### Object state
@@ -1302,18 +1342,33 @@ When state is an object, spread to preserve other fields:
 
 ```jsx
 function ProfileForm() {
-  const [form, setForm] = useState({ name: '', email: '', bio: '' });
+  const [form, setForm] = useState({ name: "", email: "", bio: "" });
 
   function handleChange(e) {
     const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value })); // Update only the changed field
+    setForm((prev) => ({ ...prev, [name]: value })); // Update only the changed field
   }
 
   return (
     <form>
-      <input name="name"  value={form.name}  onChange={handleChange} placeholder="Name" />
-      <input name="email" value={form.email} onChange={handleChange} placeholder="Email" />
-      <textarea name="bio" value={form.bio}  onChange={handleChange} placeholder="Bio" />
+      <input
+        name="name"
+        value={form.name}
+        onChange={handleChange}
+        placeholder="Name"
+      />
+      <input
+        name="email"
+        value={form.email}
+        onChange={handleChange}
+        placeholder="Email"
+      />
+      <textarea
+        name="bio"
+        value={form.bio}
+        onChange={handleChange}
+        placeholder="Bio"
+      />
     </form>
   );
 }
@@ -1338,7 +1393,7 @@ const [data, setData] = useState(() => expensiveComputation());
 `useEffect` lets you perform **side effects** — operations that affect something outside of React's rendering (data fetching, subscriptions, DOM manipulation, timers).
 
 ```jsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 function Clock() {
   const [time, setTime] = useState(new Date());
@@ -1360,9 +1415,13 @@ function Clock() {
 ### Dependency array controls when the effect runs
 
 ```jsx
-useEffect(() => { /* runs after every render */ });
+useEffect(() => {
+  /* runs after every render */
+});
 
-useEffect(() => { /* runs once after mount */ }, []);
+useEffect(() => {
+  /* runs once after mount */
+}, []);
 
 useEffect(() => {
   /* runs after mount AND whenever `userId` changes */
@@ -1373,9 +1432,9 @@ useEffect(() => {
 
 ```jsx
 function UserProfile({ userId }) {
-  const [user, setUser]       = useState(null);
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     let cancelled = false; // Prevent state updates after unmount
@@ -1384,7 +1443,7 @@ function UserProfile({ userId }) {
       try {
         setLoading(true);
         const response = await fetch(`/api/users/${userId}`);
-        if (!response.ok) throw new Error('Failed to fetch');
+        if (!response.ok) throw new Error("Failed to fetch");
         const data = await response.json();
         if (!cancelled) setUser(data);
       } catch (err) {
@@ -1395,14 +1454,21 @@ function UserProfile({ userId }) {
     }
 
     fetchUser();
-    return () => { cancelled = true; }; // Cleanup
+    return () => {
+      cancelled = true;
+    }; // Cleanup
   }, [userId]); // Re-fetch whenever userId changes
 
   if (loading) return <p>Loading…</p>;
-  if (error)   return <p>Error: {error}</p>;
-  if (!user)   return null;
+  if (error) return <p>Error: {error}</p>;
+  if (!user) return null;
 
-  return <div><h2>{user.name}</h2><p>{user.email}</p></div>;
+  return (
+    <div>
+      <h2>{user.name}</h2>
+      <p>{user.email}</p>
+    </div>
+  );
 }
 ```
 
@@ -1416,19 +1482,76 @@ useEffect(() => {
 
 // Subscribe / unsubscribe
 useEffect(() => {
-  window.addEventListener('resize', handleResize);
-  return () => window.removeEventListener('resize', handleResize);
+  window.addEventListener("resize", handleResize);
+  return () => window.removeEventListener("resize", handleResize);
 }, []);
 
 // Local storage sync
 useEffect(() => {
-  localStorage.setItem('theme', theme);
+  localStorage.setItem("theme", theme);
 }, [theme]);
 ```
 
 ---
 
-## 21. Context API
+## 21. useRef
+
+`useRef` provides a mutable ref object whose `.current` property persists for the lifetime of the component. It's commonly used for two purposes:
+
+- Hold a DOM reference (imperative access to a DOM node)
+- Hold a mutable value that doesn't trigger re-renders when changed
+
+Basic usage — DOM ref:
+
+```jsx
+import { useRef, useEffect } from "react";
+
+function TextInput() {
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    // Focus the input on mount
+    inputRef.current?.focus();
+  }, []);
+
+  return <input ref={inputRef} placeholder="Type here" />;
+}
+```
+
+Mutable container usage (no re-render):
+
+```jsx
+import { useRef } from "react";
+
+function Stopwatch() {
+  const startRef = useRef(null);
+
+  function start() {
+    startRef.current = Date.now(); // updates without causing re-render
+  }
+
+  function elapsed() {
+    return startRef.current ? Date.now() - startRef.current : 0;
+  }
+
+  return (
+    <div>
+      <button onClick={start}>Start</button>
+      <p>Elapsed: {elapsed()} ms</p>
+    </div>
+  );
+}
+```
+
+Notes & gotchas:
+
+- Changing `ref.current` does NOT trigger a rerender — use state when UI must update.
+- Prefer `useRef` for imperative DOM work (focus, measurements) or storing mutable values across renders (timeouts, previous props).
+- When forwarding refs from parent to child, use `forwardRef`.
+
+---
+
+## 22. Context API
 
 The **Context API** solves **prop drilling** — passing data through many layers of components that don't need it themselves.
 
@@ -1436,17 +1559,17 @@ The **Context API** solves **prop drilling** — passing data through many layer
 
 ```jsx
 // src/context/ThemeContext.jsx
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState } from "react";
 
 // 1. Create the context with a default value
-const ThemeContext = createContext({ theme: 'light', toggleTheme: () => {} });
+const ThemeContext = createContext({ theme: "light", toggleTheme: () => {} });
 
 // 2. Create a Provider component that wraps children
 export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState('light');
+  const [theme, setTheme] = useState("light");
 
   function toggleTheme() {
-    setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
+    setTheme((prev) => (prev === "light" ? "dark" : "light"));
   }
 
   return (
@@ -1459,7 +1582,7 @@ export function ThemeProvider({ children }) {
 // 3. Create a custom hook for consuming the context
 export function useTheme() {
   const context = useContext(ThemeContext);
-  if (!context) throw new Error('useTheme must be used inside ThemeProvider');
+  if (!context) throw new Error("useTheme must be used inside ThemeProvider");
   return context;
 }
 ```
@@ -1468,14 +1591,14 @@ export function useTheme() {
 
 ```jsx
 // src/main.jsx
-import { ThemeProvider } from './context/ThemeContext';
+import { ThemeProvider } from "./context/ThemeContext";
 
 root.render(
   <StrictMode>
     <ThemeProvider>
       <App />
     </ThemeProvider>
-  </StrictMode>
+  </StrictMode>,
 );
 ```
 
@@ -1483,7 +1606,7 @@ root.render(
 
 ```jsx
 // src/components/Header.jsx
-import { useTheme } from '../context/ThemeContext';
+import { useTheme } from "../context/ThemeContext";
 
 function Header() {
   const { theme, toggleTheme } = useTheme();
@@ -1492,7 +1615,7 @@ function Header() {
     <header className={`header header-${theme}`}>
       <h1>My App</h1>
       <button onClick={toggleTheme}>
-        Switch to {theme === 'light' ? 'dark' : 'light'} mode
+        Switch to {theme === "light" ? "dark" : "light"} mode
       </button>
     </header>
   );
@@ -1501,16 +1624,16 @@ function Header() {
 
 ### When to use Context vs Zustand
 
-| Context API | Zustand |
-|-------------|---------|
+| Context API                                 | Zustand                                        |
+| ------------------------------------------- | ---------------------------------------------- |
 | Low-frequency updates (theme, auth, locale) | High-frequency updates (live data, form state) |
-| Built-in, no extra dependency | Requires `zustand` package |
-| Re-renders all consumers on change | Fine-grained subscriptions |
-| Simple setup | Slightly more setup, but more powerful |
+| Built-in, no extra dependency               | Requires `zustand` package                     |
+| Re-renders all consumers on change          | Fine-grained subscriptions                     |
+| Simple setup                                | Slightly more setup, but more powerful         |
 
 ---
 
-## 22. Styling Approaches
+## 23. Styling Approaches
 
 React supports multiple styling strategies. Here are the most common:
 
@@ -1520,13 +1643,22 @@ Plain `.css` files imported in `main.jsx` or `App.jsx`. Styles apply globally.
 
 ```css
 /* src/index.css */
-*, *::before, *::after { box-sizing: border-box; }
-body { margin: 0; font-family: system-ui, sans-serif; }
-h1 { color: #333; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+}
+h1 {
+  color: #333;
+}
 ```
 
 ```jsx
-import './index.css'; // in main.jsx
+import "./index.css"; // in main.jsx
 ```
 
 ### 2. CSS Modules (component-scoped — recommended)
@@ -1555,14 +1687,11 @@ CSS Modules scope styles to the component by auto-generating unique class names.
 
 ```jsx
 // src/components/Button/Button.jsx
-import styles from './Button.module.css';
+import styles from "./Button.module.css";
 
-function Button({ label, variant = 'primary', onClick }) {
+function Button({ label, variant = "primary", onClick }) {
   return (
-    <button
-      className={`${styles.button} ${styles[variant]}`}
-      onClick={onClick}
-    >
+    <button className={`${styles.button} ${styles[variant]}`} onClick={onClick}>
       {label}
     </button>
   );
@@ -1580,13 +1709,13 @@ Good for dynamic values (computed at runtime). Not ideal for static styles.
 ```jsx
 function ProgressBar({ percent }) {
   return (
-    <div style={{ width: '100%', background: '#eee', borderRadius: 4 }}>
+    <div style={{ width: "100%", background: "#eee", borderRadius: 4 }}>
       <div
         style={{
           width: `${percent}%`,
           height: 8,
-          background: percent > 75 ? 'green' : 'orange',
-          transition: 'width 0.3s ease',
+          background: percent > 75 ? "green" : "orange",
+          transition: "width 0.3s ease",
         }}
       />
     </div>
@@ -1604,10 +1733,10 @@ bun add -D tailwindcss @tailwindcss/vite
 
 ```js
 // vite.config.js
-import tailwindcss from '@tailwindcss/vite'
+import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-})
+});
 ```
 
 ```css
@@ -1633,12 +1762,12 @@ bun add styled-components
 ```
 
 ```jsx
-import styled from 'styled-components';
+import styled from "styled-components";
 
 const Button = styled.button`
   padding: 0.5rem 1rem;
-  background: ${props => props.primary ? '#0070f3' : '#eaeaea'};
-  color: ${props => props.primary ? 'white' : '#333'};
+  background: ${(props) => (props.primary ? "#0070f3" : "#eaeaea")};
+  color: ${(props) => (props.primary ? "white" : "#333")};
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -1656,17 +1785,17 @@ function App() {
 
 ### Choosing a strategy
 
-| Approach | Scoped | Dynamic | Bundle size | Best for |
-|----------|--------|---------|-------------|----------|
-| Global CSS | ❌ | ❌ | Tiny | Resets, fonts |
-| CSS Modules | ✅ | Partial | Small | Most components |
-| Inline styles | ✅ | ✅ | None | Runtime values |
-| Tailwind | ✅ | Partial | Small | Rapid prototyping |
-| styled-components | ✅ | ✅ | Medium | Design systems |
+| Approach          | Scoped | Dynamic | Bundle size | Best for          |
+| ----------------- | ------ | ------- | ----------- | ----------------- |
+| Global CSS        | ❌     | ❌      | Tiny        | Resets, fonts     |
+| CSS Modules       | ✅     | Partial | Small       | Most components   |
+| Inline styles     | ✅     | ✅      | None        | Runtime values    |
+| Tailwind          | ✅     | Partial | Small       | Rapid prototyping |
+| styled-components | ✅     | ✅      | Medium      | Design systems    |
 
 ---
 
-## 23. Routing
+## 24. Routing
 
 Install React Router:
 
@@ -1680,14 +1809,14 @@ Wrap your app with `BrowserRouter` to enable routing. It uses the HTML5 History 
 
 ```jsx
 // src/main.jsx
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter } from "react-router-dom";
 
 root.render(
   <StrictMode>
     <BrowserRouter>
       <App />
     </BrowserRouter>
-  </StrictMode>
+  </StrictMode>,
 );
 ```
 
@@ -1695,12 +1824,12 @@ root.render(
 
 ```jsx
 // src/App.jsx
-import { Routes, Route } from 'react-router-dom';
-import Home          from './pages/Home';
-import About         from './pages/About';
-import ProductList   from './pages/ProductList';
-import ProductDetail from './pages/ProductDetail';
-import NotFound      from './pages/NotFound';
+import { Routes, Route } from "react-router-dom";
+import Home from "./pages/Home";
+import About from "./pages/About";
+import ProductList from "./pages/ProductList";
+import ProductDetail from "./pages/ProductDetail";
+import NotFound from "./pages/NotFound";
 
 function App() {
   return (
@@ -1712,11 +1841,11 @@ function App() {
       </nav>
 
       <Routes>
-        <Route path="/"            element={<Home />} />
-        <Route path="/about"       element={<About />} />
-        <Route path="/products"    element={<ProductList />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/products" element={<ProductList />} />
         <Route path="/products/:id" element={<ProductDetail />} />
-        <Route path="*"            element={<NotFound />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </div>
   );
@@ -1727,8 +1856,8 @@ function App() {
 
 ```jsx
 // src/pages/ProductDetail.jsx
-import { useParams } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 function ProductDetail() {
   const { id } = useParams(); // Reads `:id` from the URL
@@ -1736,7 +1865,7 @@ function ProductDetail() {
 
   useEffect(() => {
     fetch(`/api/products/${id}`)
-      .then(r => r.json())
+      .then((r) => r.json())
       .then(setProduct);
   }, [id]);
 
@@ -1758,21 +1887,21 @@ export default ProductDetail;
 
 ```jsx
 // src/pages/LoginPage.jsx
-import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 function LoginPage() {
   const navigate = useNavigate();
-  const [credentials, setCredentials] = useState({ email: '', password: '' });
+  const [credentials, setCredentials] = useState({ email: "", password: "" });
 
   async function handleSubmit(e) {
     e.preventDefault();
     const success = await login(credentials);
 
     if (success) {
-      navigate('/dashboard');           // Navigate forward
+      navigate("/dashboard"); // Navigate forward
     } else {
-      navigate('/login?error=1');       // Navigate with query string
+      navigate("/login?error=1"); // Navigate with query string
     }
   }
 
@@ -1786,15 +1915,21 @@ function LoginPage() {
       <input
         type="email"
         value={credentials.email}
-        onChange={e => setCredentials(p => ({ ...p, email: e.target.value }))}
+        onChange={(e) =>
+          setCredentials((p) => ({ ...p, email: e.target.value }))
+        }
       />
       <input
         type="password"
         value={credentials.password}
-        onChange={e => setCredentials(p => ({ ...p, password: e.target.value }))}
+        onChange={(e) =>
+          setCredentials((p) => ({ ...p, password: e.target.value }))
+        }
       />
       <button type="submit">Login</button>
-      <button type="button" onClick={handleCancel}>Cancel</button>
+      <button type="button" onClick={handleCancel}>
+        Cancel
+      </button>
     </form>
   );
 }
@@ -1805,7 +1940,7 @@ function LoginPage() {
 Use `<Link>` instead of `<a>` to navigate without a full page reload:
 
 ```jsx
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink } from "react-router-dom";
 
 function Nav() {
   return (
@@ -1814,7 +1949,10 @@ function Nav() {
       <Link to="/about">About</Link>
 
       {/* NavLink adds an `active` class automatically when the route matches */}
-      <NavLink to="/products" className={({ isActive }) => isActive ? 'active' : ''}>
+      <NavLink
+        to="/products"
+        className={({ isActive }) => (isActive ? "active" : "")}
+      >
         Products
       </NavLink>
     </nav>
@@ -1826,12 +1964,14 @@ function Nav() {
 
 ```jsx
 // src/App.jsx
-import { Routes, Route, Outlet } from 'react-router-dom';
+import { Routes, Route, Outlet } from "react-router-dom";
 
 function DashboardLayout() {
   return (
     <div className="dashboard">
-      <aside><nav>Sidebar</nav></aside>
+      <aside>
+        <nav>Sidebar</nav>
+      </aside>
       <main>
         <Outlet /> {/* Child routes render here */}
       </main>
@@ -1843,7 +1983,7 @@ function App() {
   return (
     <Routes>
       <Route path="/dashboard" element={<DashboardLayout />}>
-        <Route index          element={<DashboardHome />} />
+        <Route index element={<DashboardHome />} />
         <Route path="profile" element={<Profile />} />
         <Route path="settings" element={<Settings />} />
       </Route>
@@ -1854,7 +1994,7 @@ function App() {
 
 ---
 
-## 24. useCallback & useMemo
+## 25. useCallback & useMemo
 
 Both hooks are **performance optimizations** — they memoize (cache) values to avoid redundant work. Use them when you have a measurable performance problem, not preemptively.
 
@@ -1863,12 +2003,14 @@ Both hooks are **performance optimizations** — they memoize (cache) values to 
 Recalculates only when dependencies change.
 
 ```jsx
-import { useMemo, useState } from 'react';
+import { useMemo, useState } from "react";
 
-const products = [/* thousands of products */];
+const products = [
+  /* thousands of products */
+];
 
 function ProductCatalog() {
-  const [query, setQuery]       = useState('');
+  const [query, setQuery] = useState("");
   const [minPrice, setMinPrice] = useState(0);
 
   // ❌ Without useMemo: filters on every render
@@ -1877,16 +2019,28 @@ function ProductCatalog() {
   // ✅ With useMemo: only recalculates when query or minPrice changes
   const filtered = useMemo(() => {
     return products
-      .filter(p => p.name.toLowerCase().includes(query.toLowerCase()))
-      .filter(p => p.price >= minPrice);
+      .filter((p) => p.name.toLowerCase().includes(query.toLowerCase()))
+      .filter((p) => p.price >= minPrice);
   }, [query, minPrice]);
 
   return (
     <div>
-      <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search…" />
-      <input type="number" value={minPrice} onChange={e => setMinPrice(Number(e.target.value))} />
+      <input
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Search…"
+      />
+      <input
+        type="number"
+        value={minPrice}
+        onChange={(e) => setMinPrice(Number(e.target.value))}
+      />
       <p>{filtered.length} results</p>
-      <ul>{filtered.map(p => <li key={p.id}>{p.name}</li>)}</ul>
+      <ul>
+        {filtered.map((p) => (
+          <li key={p.id}>{p.name}</li>
+        ))}
+      </ul>
     </div>
   );
 }
@@ -1897,14 +2051,18 @@ function ProductCatalog() {
 Returns a stable function reference. Crucial when passing callbacks to memoized child components (`React.memo`).
 
 ```jsx
-import { useCallback, useState, memo } from 'react';
+import { useCallback, useState, memo } from "react";
 
 // memo: only re-renders if props change
 const TaskItem = memo(function TaskItem({ task, onToggle, onDelete }) {
-  console.log('TaskItem render:', task.id);
+  console.log("TaskItem render:", task.id);
   return (
     <li>
-      <input type="checkbox" checked={task.done} onChange={() => onToggle(task.id)} />
+      <input
+        type="checkbox"
+        checked={task.done}
+        onChange={() => onToggle(task.id)}
+      />
       {task.title}
       <button onClick={() => onDelete(task.id)}>×</button>
     </li>
@@ -1912,36 +2070,38 @@ const TaskItem = memo(function TaskItem({ task, onToggle, onDelete }) {
 });
 
 function TaskList() {
-  const [tasks, setTasks]   = useState([
-    { id: 1, title: 'Learn React', done: false },
-    { id: 2, title: 'Build a project', done: false },
+  const [tasks, setTasks] = useState([
+    { id: 1, title: "Learn React", done: false },
+    { id: 2, title: "Build a project", done: false },
   ]);
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState("all");
 
   // ✅ Stable reference — TaskItem won't re-render due to a new function instance
   const handleToggle = useCallback((id) => {
-    setTasks(prev => prev.map(t => t.id === id ? { ...t, done: !t.done } : t));
+    setTasks((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t)),
+    );
   }, []); // No deps — setTasks is always stable
 
   const handleDelete = useCallback((id) => {
-    setTasks(prev => prev.filter(t => t.id !== id));
+    setTasks((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
   const visibleTasks = useMemo(() => {
-    if (filter === 'done')   return tasks.filter(t => t.done);
-    if (filter === 'active') return tasks.filter(t => !t.done);
+    if (filter === "done") return tasks.filter((t) => t.done);
+    if (filter === "active") return tasks.filter((t) => !t.done);
     return tasks;
   }, [tasks, filter]);
 
   return (
     <div>
-      <select value={filter} onChange={e => setFilter(e.target.value)}>
+      <select value={filter} onChange={(e) => setFilter(e.target.value)}>
         <option value="all">All</option>
         <option value="active">Active</option>
         <option value="done">Done</option>
       </select>
       <ul>
-        {visibleTasks.map(task => (
+        {visibleTasks.map((task) => (
           <TaskItem
             key={task.id}
             task={task}
@@ -1963,7 +2123,7 @@ function TaskList() {
 
 ---
 
-## 25. Zustand
+## 26. Zustand
 
 **Zustand** is a minimal, fast global state manager. It's the preferred alternative to Redux for most React applications.
 
@@ -1975,7 +2135,7 @@ bun add zustand
 
 ```js
 // src/store/useCartStore.js
-import { create } from 'zustand';
+import { create } from "zustand";
 
 const useCartStore = create((set, get) => ({
   // State
@@ -1987,18 +2147,21 @@ const useCartStore = create((set, get) => ({
     return get().items.reduce((sum, item) => sum + item.quantity, 0);
   },
   get totalPrice() {
-    return get().items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    return get().items.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0,
+    );
   },
 
   // Actions
   addItem(product) {
-    set(state => {
-      const existing = state.items.find(i => i.id === product.id);
+    set((state) => {
+      const existing = state.items.find((i) => i.id === product.id);
       if (existing) {
         // Increment quantity if already in cart
         return {
-          items: state.items.map(i =>
-            i.id === product.id ? { ...i, quantity: i.quantity + 1 } : i
+          items: state.items.map((i) =>
+            i.id === product.id ? { ...i, quantity: i.quantity + 1 } : i,
           ),
         };
       }
@@ -2007,8 +2170,8 @@ const useCartStore = create((set, get) => ({
   },
 
   removeItem(productId) {
-    set(state => ({
-      items: state.items.filter(i => i.id !== productId),
+    set((state) => ({
+      items: state.items.filter((i) => i.id !== productId),
     }));
   },
 
@@ -2017,9 +2180,9 @@ const useCartStore = create((set, get) => ({
       get().removeItem(productId);
       return;
     }
-    set(state => ({
-      items: state.items.map(i =>
-        i.id === productId ? { ...i, quantity } : i
+    set((state) => ({
+      items: state.items.map((i) =>
+        i.id === productId ? { ...i, quantity } : i,
       ),
     }));
   },
@@ -2029,7 +2192,7 @@ const useCartStore = create((set, get) => ({
   },
 
   toggleCart() {
-    set(state => ({ isOpen: !state.isOpen }));
+    set((state) => ({ isOpen: !state.isOpen }));
   },
 }));
 
@@ -2040,60 +2203,57 @@ export default useCartStore;
 
 ```jsx
 // src/components/AddToCartButton.jsx
-import useCartStore from '../store/useCartStore';
+import useCartStore from "../store/useCartStore";
 
 function AddToCartButton({ product }) {
   // Select only what you need — component only re-renders when addItem changes
-  const addItem = useCartStore(state => state.addItem);
+  const addItem = useCartStore((state) => state.addItem);
 
-  return (
-    <button onClick={() => addItem(product)}>
-      Add to Cart
-    </button>
-  );
+  return <button onClick={() => addItem(product)}>Add to Cart</button>;
 }
 ```
 
 ```jsx
 // src/components/CartDrawer.jsx
-import useCartStore from '../store/useCartStore';
+import useCartStore from "../store/useCartStore";
 
 function CartDrawer() {
   // Select multiple slices
-  const items        = useCartStore(state => state.items);
-  const totalPrice   = useCartStore(state => state.totalPrice);
-  const removeItem   = useCartStore(state => state.removeItem);
-  const updateQty    = useCartStore(state => state.updateQuantity);
-  const clearCart    = useCartStore(state => state.clearCart);
-  const isOpen       = useCartStore(state => state.isOpen);
-  const toggleCart   = useCartStore(state => state.toggleCart);
+  const items = useCartStore((state) => state.items);
+  const totalPrice = useCartStore((state) => state.totalPrice);
+  const removeItem = useCartStore((state) => state.removeItem);
+  const updateQty = useCartStore((state) => state.updateQuantity);
+  const clearCart = useCartStore((state) => state.clearCart);
+  const isOpen = useCartStore((state) => state.isOpen);
+  const toggleCart = useCartStore((state) => state.toggleCart);
 
   if (!isOpen) return null;
 
   return (
     <aside className="cart-drawer">
       <h2>Your Cart</h2>
-      {items.length === 0
-        ? <p>Your cart is empty.</p>
-        : (
-          <ul>
-            {items.map(item => (
-              <li key={item.id}>
-                <span>{item.name}</span>
-                <input
-                  type="number"
-                  value={item.quantity}
-                  min={1}
-                  onChange={e => updateQty(item.id, Number(e.target.value))}
-                />
-                <span>${(item.price * item.quantity).toFixed(2)}</span>
-                <button onClick={() => removeItem(item.id)}>Remove</button>
-              </li>
-            ))}
-          </ul>
-        )
-      }
-      <p><strong>Total: ${totalPrice.toFixed(2)}</strong></p>
+      {items.length === 0 ? (
+        <p>Your cart is empty.</p>
+      ) : (
+        <ul>
+          {items.map((item) => (
+            <li key={item.id}>
+              <span>{item.name}</span>
+              <input
+                type="number"
+                value={item.quantity}
+                min={1}
+                onChange={(e) => updateQty(item.id, Number(e.target.value))}
+              />
+              <span>${(item.price * item.quantity).toFixed(2)}</span>
+              <button onClick={() => removeItem(item.id)}>Remove</button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p>
+        <strong>Total: ${totalPrice.toFixed(2)}</strong>
+      </p>
       <button onClick={clearCart}>Clear Cart</button>
       <button onClick={toggleCart}>Close</button>
     </aside>
@@ -2103,12 +2263,12 @@ function CartDrawer() {
 
 ```jsx
 // src/components/CartIcon.jsx — shows badge count
-import useCartStore from '../store/useCartStore';
+import useCartStore from "../store/useCartStore";
 
 function CartIcon() {
   // Only subscribes to totalItems — won't re-render when other state changes
-  const totalItems = useCartStore(state => state.totalItems);
-  const toggleCart = useCartStore(state => state.toggleCart);
+  const totalItems = useCartStore((state) => state.totalItems);
+  const toggleCart = useCartStore((state) => state.toggleCart);
 
   return (
     <button onClick={toggleCart} className="cart-icon">
@@ -2124,20 +2284,24 @@ Zustand can persist state to `localStorage` automatically:
 
 ```js
 // src/store/useCartStore.js
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 const useCartStore = create(
   persist(
     (set, get) => ({
       items: [],
-      addItem(product) { /* ... */ },
-      clearCart() { set({ items: [] }); },
+      addItem(product) {
+        /* ... */
+      },
+      clearCart() {
+        set({ items: [] });
+      },
     }),
     {
-      name: 'cart-storage', // localStorage key
-    }
-  )
+      name: "cart-storage", // localStorage key
+    },
+  ),
 );
 
 export default useCartStore;
@@ -2160,25 +2324,25 @@ Good for: theme, auth, locale   Good for: cart, filters, UI state
 
 You've covered the full foundation of a modern React application:
 
-| Concept | Key takeaway |
-|---------|-------------|
-| Bootstrap | `main.jsx` mounts `<App>` into `index.html#root` via `createRoot` |
-| Components | Functions that return JSX — capital name, single root element |
-| JSX | HTML-like syntax with `{}` for JS expressions |
-| Exports | Default (one per file) vs named (many per file) |
-| ES Modules | `import`/`export` are the standard — use barrel files for clean imports |
-| Destructuring | Unpack arrays/objects — essential for props and hooks |
-| Spread/Rest | `...` expands or collects — key for immutable updates |
-| map/filter/reduce | Core data transformation — foundation of list rendering |
-| Props | Read-only data flow from parent to child |
-| Closures | Functions remember surrounding scope — be wary of stale values |
-| Architecture | Presentational/container split, custom hooks for shared logic |
-| Lists | Always provide a stable `key` prop |
-| Conditional rendering | `if`, ternary, `&&` — render nothing with `null` |
-| useState | Local reactive state — use functional updater for derived updates |
-| useEffect | Side effects — always clean up, mind the dependency array |
-| Context API | Share data without prop drilling — best for low-frequency updates |
-| Styling | CSS Modules for scoped styles, Tailwind for utility-first |
-| Routing | `BrowserRouter` + `Routes` + `Route`, `useParams`, `useNavigate` |
-| useCallback/useMemo | Memoize functions/values — only when you have a real perf issue |
-| Zustand | Minimal global state — select slices, persist with middleware |
+| Concept               | Key takeaway                                                            |
+| --------------------- | ----------------------------------------------------------------------- |
+| Bootstrap             | `main.jsx` mounts `<App>` into `index.html#root` via `createRoot`       |
+| Components            | Functions that return JSX — capital name, single root element           |
+| JSX                   | HTML-like syntax with `{}` for JS expressions                           |
+| Exports               | Default (one per file) vs named (many per file)                         |
+| ES Modules            | `import`/`export` are the standard — use barrel files for clean imports |
+| Destructuring         | Unpack arrays/objects — essential for props and hooks                   |
+| Spread/Rest           | `...` expands or collects — key for immutable updates                   |
+| map/filter/reduce     | Core data transformation — foundation of list rendering                 |
+| Props                 | Read-only data flow from parent to child                                |
+| Closures              | Functions remember surrounding scope — be wary of stale values          |
+| Architecture          | Presentational/container split, custom hooks for shared logic           |
+| Lists                 | Always provide a stable `key` prop                                      |
+| Conditional rendering | `if`, ternary, `&&` — render nothing with `null`                        |
+| useState              | Local reactive state — use functional updater for derived updates       |
+| useEffect             | Side effects — always clean up, mind the dependency array               |
+| Context API           | Share data without prop drilling — best for low-frequency updates       |
+| Styling               | CSS Modules for scoped styles, Tailwind for utility-first               |
+| Routing               | `BrowserRouter` + `Routes` + `Route`, `useParams`, `useNavigate`        |
+| useCallback/useMemo   | Memoize functions/values — only when you have a real perf issue         |
+| Zustand               | Minimal global state — select slices, persist with middleware           |
